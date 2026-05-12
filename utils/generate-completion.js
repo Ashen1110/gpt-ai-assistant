@@ -33,7 +33,7 @@ const generateCompletion = async ({
   if (config.APP_ENV !== 'production') return new Completion({ text: MOCK_TEXT_OK });
   
   const messages = [...prompt.messages];
-  const maxIterations = 5; // 防止無限循環
+  const maxIterations = 3; // 減少迭代次數避免超時
   let iterations = 0;
   
   // 是否啟用 Function Calling

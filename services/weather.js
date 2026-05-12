@@ -139,7 +139,7 @@ const getWeather = async ({
       temperature_unit: temperatureUnit,
       wind_speed_unit: windSpeedUnit,
       timezone: 'auto',
-      forecast_days: 7,
+      forecast_days: 3,
     },
   });
   

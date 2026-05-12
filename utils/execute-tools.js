@@ -40,43 +40,51 @@ export const executeToolCall = async (toolName, args) => {
 
       case TOOL_GET_WEATHER: {
         const { city, units = 'metric' } = args;
-        const res = await getWeather({ city, units });
-        const { data } = res;
         
-        const tempUnit = units === 'metric' ? '°C' : '°F';
-        const windSpeedUnit = units === 'metric' ? 'm/s' : 'mph';
-        
-        // 當前天氣
-        const current = data.current;
-        const weatherCode = current.weather_code;
-        const weatherDesc = getWeatherDescription(weatherCode);
-        
-        // 未來幾天預報
-        const dailyForecast = [];
-        for (let i = 0; i < Math.min(7, data.daily.time?.length || 0); i++) {
-          dailyForecast.push({
-            date: data.daily.time[i],
-            weather: getWeatherDescription(data.daily.weather_code[i]),
-            temp_max: `${Math.round(data.daily.temperature_2m_max[i])}${tempUnit}`,
-            temp_min: `${Math.round(data.daily.temperature_2m_min[i])}${tempUnit}`,
-            precipitation_probability: `${data.daily.precipitation_probability_max[i]}%`,
+        try {
+          const res = await getWeather({ city, units });
+          const { data } = res;
+          
+          const tempUnit = units === 'metric' ? '°C' : '°F';
+          const windSpeedUnit = units === 'metric' ? 'm/s' : 'mph';
+          
+          // 當前天氣
+          const current = data.current;
+          const weatherCode = current.weather_code;
+          const weatherDesc = getWeatherDescription(weatherCode);
+          
+          // 未來幾天預報（限制為 3 天以加快速度）
+          const dailyForecast = [];
+          for (let i = 0; i < Math.min(3, data.daily.time?.length || 0); i++) {
+            dailyForecast.push({
+              date: data.daily.time[i],
+              weather: getWeatherDescription(data.daily.weather_code[i]),
+              temp_max: `${Math.round(data.daily.temperature_2m_max[i])}${tempUnit}`,
+              temp_min: `${Math.round(data.daily.temperature_2m_min[i])}${tempUnit}`,
+              precipitation_probability: `${data.daily.precipitation_probability_max[i]}%`,
+            });
+          }
+          
+          const result = {
+            city: data.name,
+            current_weather: {
+              temperature: `${Math.round(current.temperature_2m)}${tempUnit}`,
+              feels_like: `${Math.round(current.apparent_temperature)}${tempUnit}`,
+              humidity: `${current.relative_humidity_2m}%`,
+              description: weatherDesc,
+              wind_speed: `${Math.round(current.wind_speed_10m * 10) / 10} ${windSpeedUnit}`,
+            },
+            forecast: dailyForecast,
+            timezone: data.timezone,
+          };
+          
+          return JSON.stringify(result);
+        } catch (error) {
+          return JSON.stringify({ 
+            error: `天氣查詢失敗: ${error.message}`,
+            city,
           });
         }
-        
-        const result = {
-          city: data.name,
-          current_weather: {
-            temperature: `${Math.round(current.temperature_2m)}${tempUnit}`,
-            feels_like: `${Math.round(current.apparent_temperature)}${tempUnit}`,
-            humidity: `${current.relative_humidity_2m}%`,
-            description: weatherDesc,
-            wind_speed: `${Math.round(current.wind_speed_10m * 10) / 10} ${windSpeedUnit}`,
-          },
-          forecast: dailyForecast,
-          timezone: data.timezone,
-        };
-        
-        return JSON.stringify(result);
       }
 
       default:
