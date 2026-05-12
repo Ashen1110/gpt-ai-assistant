@@ -97,7 +97,25 @@ class Context {
   get hasBotName() {
     if (this.event.isText) {
       const text = this.event.text.replaceAll('　', ' ').trim().toLowerCase();
-      return text.startsWith(config.BOT_NAME.toLowerCase());
+      const botName = config.BOT_NAME.toLowerCase();
+      
+      // 支援多種觸發方式：
+      // 英文: /ai, !ai, .ai
+      // 中文: 小幫手, 安安
+      // 符號: @all
+      const patterns = [
+        // 簡短指令
+        `/ai `, `!ai `, `.ai `, `/ai`, `!ai`, `.ai`,
+        `@all`,
+        // 中文觸發詞
+        `安安`, `幫手`, `二二`, `貓貓`, `助理`,
+        // 符號 + 名稱
+        `@${botName}`, `/${botName}`,
+        // 直接名稱
+        botName,
+      ];
+      
+      return patterns.some(pattern => text.startsWith(pattern));
     }
     if (this.event.isAudio) {
       const text = this.transcription.toLowerCase();
