@@ -30,13 +30,13 @@ export const tools = [
     type: 'function',
     function: {
       name: TOOL_GET_WEATHER,
-      description: '查詢指定城市的即時天氣資訊。包含溫度、濕度、天氣狀況等。',
+      description: '查詢指定城市的即時天氣及未來 7 天預報。包含溫度、濕度、天氣狀況、降雨機率等。使用 Open-Meteo API，無需 API Key。',
       parameters: {
         type: 'object',
         properties: {
           city: {
             type: 'string',
-            description: '要查詢天氣的城市名稱，例如：Taipei, Tokyo, New York',
+            description: '要查詢天氣的城市名稱，例如：Taipei, Tokyo, New York, Hong Kong',
           },
           units: {
             type: 'string',

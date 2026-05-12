@@ -1,6 +1,6 @@
 import config from '../config/index.js';
 import { search } from '../services/serpapi.js';
-import { getWeather } from '../services/weather.js';
+import { getWeather, getWeatherDescription } from '../services/weather.js';
 import { TOOL_GOOGLE_SEARCH, TOOL_GET_WEATHER } from './tools.js';
 
 /**
@@ -39,22 +39,40 @@ export const executeToolCall = async (toolName, args) => {
       }
 
       case TOOL_GET_WEATHER: {
-        if (!config.WEATHER_API_KEY) {
-          return JSON.stringify({ error: '未設定 WEATHER_API_KEY' });
-        }
         const { city, units = 'metric' } = args;
         const res = await getWeather({ city, units });
         const { data } = res;
         
         const tempUnit = units === 'metric' ? '°C' : '°F';
+        
+        // 當前天氣
+        const current = data.current;
+        const weatherCode = current.weather_code;
+        const weatherDesc = getWeatherDescription(weatherCode);
+        
+        // 未來幾天預報
+        const dailyForecast = [];
+        for (let i = 0; i < Math.min(7, data.daily.time?.length || 0); i++) {
+          dailyForecast.push({
+            date: data.daily.time[i],
+            weather: getWeatherDescription(data.daily.weather_code[i]),
+            temp_max: `${Math.round(data.daily.temperature_2m_max[i])}${tempUnit}`,
+            temp_min: `${Math.round(data.daily.temperature_2m_min[i])}${tempUnit}`,
+            precipitation_probability: `${data.daily.precipitation_probability_max[i]}%`,
+          });
+        }
+        
         const result = {
           city: data.name,
-          country: data.sys.country,
-          temperature: `${Math.round(data.main.temp)}${tempUnit}`,
-          feels_like: `${Math.round(data.main.feels_like)}${tempUnit}`,
-          humidity: `${data.main.humidity}%`,
-          description: data.weather[0].description,
-          wind_speed: `${data.wind.speed} m/s`,
+          current_weather: {
+            temperature: `${Math.round(current.temperature_2m)}${tempUnit}`,
+            feels_like: `${Math.round(current.apparent_temperature)}${tempUnit}`,
+            humidity: `${current.relative_humidity_2m}%`,
+            description: weatherDesc,
+            wind_speed: `${current.wind_speed_10m} m/s`,
+          },
+          forecast: dailyForecast,
+          timezone: data.timezone,
         };
         
         return JSON.stringify(result);
