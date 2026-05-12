@@ -9,6 +9,7 @@ export const ROLE_HUMAN = 'user';
 
 export const FINISH_REASON_STOP = 'stop';
 export const FINISH_REASON_LENGTH = 'length';
+export const FINISH_REASON_TOOL_CALLS = 'tool_calls';
 
 export const IMAGE_SIZE_256 = '256x256';
 export const IMAGE_SIZE_512 = '512x512';
@@ -52,6 +53,8 @@ const createChatCompletion = ({
   maxTokens = config.OPENAI_COMPLETION_MAX_TOKENS,
   frequencyPenalty = config.OPENAI_COMPLETION_FREQUENCY_PENALTY,
   presencePenalty = config.OPENAI_COMPLETION_PRESENCE_PENALTY,
+  tools = null,
+  toolChoice = null,
 }) => {
   const body = {
     model: hasImage({ messages }) ? config.OPENAI_VISION_MODEL : model,
@@ -61,6 +64,15 @@ const createChatCompletion = ({
     frequency_penalty: frequencyPenalty,
     presence_penalty: presencePenalty,
   };
+  
+  // 加入 Function Calling 支援
+  if (tools && tools.length > 0) {
+    body.tools = tools;
+    if (toolChoice) {
+      body.tool_choice = toolChoice;
+    }
+  }
+  
   return client.post('/v1/chat/completions', body);
 };
 
