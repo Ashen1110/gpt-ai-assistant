@@ -44,6 +44,7 @@ export const executeToolCall = async (toolName, args) => {
         const { data } = res;
         
         const tempUnit = units === 'metric' ? '°C' : '°F';
+        const windSpeedUnit = units === 'metric' ? 'm/s' : 'mph';
         
         // 當前天氣
         const current = data.current;
@@ -69,7 +70,7 @@ export const executeToolCall = async (toolName, args) => {
             feels_like: `${Math.round(current.apparent_temperature)}${tempUnit}`,
             humidity: `${current.relative_humidity_2m}%`,
             description: weatherDesc,
-            wind_speed: `${current.wind_speed_10m} m/s`,
+            wind_speed: `${Math.round(current.wind_speed_10m * 10) / 10} ${windSpeedUnit}`,
           },
           forecast: dailyForecast,
           timezone: data.timezone,

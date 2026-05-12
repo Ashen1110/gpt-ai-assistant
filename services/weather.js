@@ -128,6 +128,7 @@ const getWeather = async ({
   
   // 查詢天氣資料
   const temperatureUnit = units === 'imperial' ? 'fahrenheit' : 'celsius';
+  const windSpeedUnit = units === 'imperial' ? 'mph' : 'ms';
   
   const { data } = await weatherClient.get('/forecast', {
     params: {
@@ -136,7 +137,7 @@ const getWeather = async ({
       current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m',
       daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max',
       temperature_unit: temperatureUnit,
-      wind_speed_unit: 'ms',
+      wind_speed_unit: windSpeedUnit,
       timezone: 'auto',
       forecast_days: 7,
     },

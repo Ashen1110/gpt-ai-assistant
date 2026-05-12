@@ -52,7 +52,7 @@ const config = Object.freeze({
   SERPAPI_API_KEY: env.SERPAPI_API_KEY || null,
   SERPAPI_LOCATION: env.SERPAPI_LOCATION || 'tw',
   WEATHER_TIMEOUT: env.WEATHER_TIMEOUT || env.APP_API_TIMEOUT,
-  OPENAI_ENABLE_FUNCTION_CALLING: env.OPENAI_ENABLE_FUNCTION_CALLING === 'true' || false,
+  OPENAI_ENABLE_FUNCTION_CALLING: env.OPENAI_ENABLE_FUNCTION_CALLING === 'false' ? false : true,
 });
 
 export default config;
