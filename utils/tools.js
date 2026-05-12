@@ -2,13 +2,15 @@
  * 定義所有可用的工具 (Function Calling)
  */
 
+import config from '../config/index.js';
+
 export const TOOL_GOOGLE_SEARCH = 'google_search';
 export const TOOL_GET_WEATHER = 'get_weather';
 
 /**
  * 工具定義 - 符合 OpenAI Function Calling 格式
  */
-export const tools = [
+const allTools = [
   {
     type: 'function',
     function: {
@@ -25,6 +27,7 @@ export const tools = [
         required: ['query'],
       },
     },
+    requiresApiKey: 'SERPAPI_API_KEY',
   },
   {
     type: 'function',
@@ -49,5 +52,13 @@ export const tools = [
     },
   },
 ];
+
+// 根據 API Key 的可用性過濾工具
+export const tools = allTools.filter(tool => {
+  if (tool.requiresApiKey) {
+    return config[tool.requiresApiKey] !== null && config[tool.requiresApiKey] !== undefined;
+  }
+  return true;
+}).map(({ requiresApiKey, ...tool }) => tool);
 
 export default tools;
