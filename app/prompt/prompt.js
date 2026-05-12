@@ -12,8 +12,12 @@ class Prompt {
   messages = [];
 
   constructor() {
+    const today = new Date().toISOString().split('T')[0];
+    const systemPrompt = config.APP_INIT_PROMPT || t('__COMPLETION_DEFAULT_SYSTEM_PROMPT');
+    const dateAwarePrompt = `${systemPrompt}\n\n重要提醒：今天的日期是 ${today}。當你使用搜尋或其他工具時，請根據這個日期來判斷資訊的時效性。`;
+    
     this
-      .write(ROLE_SYSTEM, config.APP_INIT_PROMPT || t('__COMPLETION_DEFAULT_SYSTEM_PROMPT'))
+      .write(ROLE_SYSTEM, dateAwarePrompt)
       .write(ROLE_HUMAN, `${t('__COMPLETION_DEFAULT_HUMAN_PROMPT')(config.HUMAN_NAME)}${config.HUMAN_INIT_PROMPT}`)
       .write(ROLE_AI, `${t('__COMPLETION_DEFAULT_AI_PROMPT')(config.BOT_NAME)}${config.BOT_INIT_PROMPT}`);
   }
